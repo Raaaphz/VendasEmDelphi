@@ -1,0 +1,105 @@
+unit cCadCliente;
+interface
+     uses system.Classes, vcl.Controls,vcl.ExtCtrls, vcl.Dialogs, ZAbstractConnection, ZConnection, ZAbstractRODataset,
+ZAbstractDataset, Zdataset, System.SysUtils;
+
+type
+TCliente = class
+  private
+  ConexaoDB:TZConnection;
+  F_categoriaId:Integer;
+  F_descricao:string;
+    F_datanascimento: TDateTime;
+    F_email: string;
+    F_bairro: string;
+    F_clienteId: Integer;
+    F_cep: string;
+    F_nome: string;
+    F_cidade: string;
+    F_endereco: string;
+    F_telefone: string;
+    F_estado: string;
+    function getCodigo: Integer;
+    function getDescricao: string;
+    procedure setCodigo(const Value: Integer);
+    procedure setDescricao(const Value: string);
+
+
+  public
+
+constructor Create(aConexao:TZCOnnection);
+destructor Destroy; override;
+function Gravar:Boolean;
+function Atualizar:Boolean;
+function Selecionar(id:Integer):Boolean;
+function Apagar:Boolean;
+
+published
+  property codigo:Integer read F_clienteId write F_clienteId;
+  property nome:string read F_nome write F_nome;
+  property endereco:string read F_endereco write F_endereco;
+  property cidade:string read F_cidade write F_cidade;
+  property bairro:string read F_bairro write F_bairro;
+  property estado:string read F_estado write F_estado;
+  property cep:string read F_cep write F_cep;
+  property telefone:string read F_telefone write F_telefone;
+  property email:string read F_email write F_email;
+  property datanascimento:TDateTime read F_datanascimento write F_nascimento;
+end;
+
+implementation
+
+{ TCliente }
+
+function TCliente.Apagar: Boolean;
+begin
+
+end;
+
+function TCliente.Atualizar: Boolean;
+begin
+
+end;
+
+constructor TCliente.Create(aConexao: TZCOnnection);
+begin
+
+end;
+
+destructor TCliente.Destroy;
+begin
+
+  inherited;
+end;
+
+function TCliente.getCodigo: Integer;
+begin
+
+end;
+
+function TCliente.getDescricao: string;
+begin
+
+end;
+
+function TCliente.Gravar: Boolean;
+begin
+
+end;
+
+function TCliente.Selecionar(id: Integer): Boolean;
+begin
+
+end;
+
+procedure TCliente.setCodigo(const Value: Integer);
+begin
+
+end;
+
+procedure TCliente.setDescricao(const Value: string);
+begin
+
+end;
+
+end.

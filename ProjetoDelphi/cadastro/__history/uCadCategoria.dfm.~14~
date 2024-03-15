@@ -1,0 +1,93 @@
+inherited frmCadCategoria: TfrmCadCategoria
+  Caption = 'Cadastro de Categorias'
+  ClientHeight = 541
+  ClientWidth = 854
+  ExplicitWidth = 866
+  ExplicitHeight = 579
+  TextHeight = 15
+  inherited pnlRodape: TPanel
+    Top = 477
+    Width = 854
+    ExplicitTop = 476
+    ExplicitWidth = 850
+    inherited btnFechar: TBitBtn
+      Left = 746
+      ExplicitLeft = 742
+    end
+    inherited btnNavega: TDBNavigator
+      Hints.Strings = ()
+    end
+  end
+  inherited pgcPrincipal: TPageControl
+    Width = 854
+    Height = 477
+    ExplicitWidth = 850
+    ExplicitHeight = 476
+    inherited tabListagem: TTabSheet
+      ExplicitWidth = 846
+      ExplicitHeight = 447
+      inherited pnlListagemTopo: TPanel
+        Width = 846
+        ExplicitWidth = 842
+      end
+      inherited grdListagem: TDBGrid
+        Width = 846
+        Height = 366
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'categoriaId'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'descricao'
+            Visible = True
+          end>
+      end
+    end
+    inherited tabManutencao: TTabSheet
+      ExplicitWidth = 846
+      ExplicitHeight = 447
+      object edtCategoriaid: TLabeledEdit
+        Tag = 1
+        Left = 14
+        Top = 40
+        Width = 121
+        Height = 23
+        EditLabel.Width = 39
+        EditLabel.Height = 15
+        EditLabel.Caption = 'C'#243'digo'
+        MaxLength = 10
+        NumbersOnly = True
+        TabOrder = 0
+        Text = ''
+      end
+      object edtDescricao: TLabeledEdit
+        Tag = 2
+        Left = 14
+        Top = 112
+        Width = 443
+        Height = 23
+        EditLabel.Width = 51
+        EditLabel.Height = 15
+        EditLabel.Caption = 'Descri'#231#227'o'
+        MaxLength = 30
+        TabOrder = 1
+        Text = ''
+      end
+    end
+  end
+  inherited qryListagem: TZQuery
+    object qryListagemcategoriaId: TIntegerField
+      DisplayLabel = 'C'#243'digo'
+      FieldName = 'categoriaId'
+      ReadOnly = True
+    end
+    object qryListagemdescricao: TWideStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 30
+    end
+  end
+end

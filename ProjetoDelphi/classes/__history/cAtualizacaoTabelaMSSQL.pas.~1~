@@ -1,0 +1,41 @@
+unit cAtualizacaoTabelaMSSQL;
+
+interface
+
+uses system.Classes, vcl.Controls,vcl.ExtCtrls, vcl.Dialogs, ZAbstractConnection, ZConnection, ZAbstractRODataset,
+ZAbstractDataset, Zdataset, System.SysUtils, cAtualizacaoBancoDeDados;
+
+type
+  TAtualizacaoTableMSSQL = class(TAtualizaBancoDados)
+
+private
+  function TabelaExiste(aNomeTabela:String):Boolean;
+
+  protected
+
+  public
+  constructor Create(aConexao:TZConnection);
+  destructor Destroy; override;
+  end;
+
+implementation
+
+{ TAtualizacaoTableMSSQL }
+
+constructor TAtualizacaoTableMSSQL.Create(aConexao: TZConnection);
+begin
+  conectDB := aConexao;
+end;
+
+destructor TAtualizacaoTableMSSQL.Destroy;
+begin
+
+  inherited;
+end;
+
+function TAtualizacaoTableMSSQL.TabelaExiste(aNomeTabela: String): Boolean;
+begin
+
+end;
+
+end.

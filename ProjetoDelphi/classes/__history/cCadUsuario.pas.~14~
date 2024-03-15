@@ -1,0 +1,267 @@
+unit cCadUsuario;
+interface
+
+uses System.Classes,
+     Vcl.Controls,
+     Vcl.ExtCtrls,
+     Vcl.Dialogs,
+     ZAbstractConnection,
+     ZConnection,
+     ZAbstractRodataset,
+     ZAbstractDataSet,
+     ZDataset,
+     System.SysUtils,
+     uFuncaoCriptografiaTESTE;
+
+type
+  TUsuario = class
+    private
+    ConectDB:TZConnection;
+    F_usuarioId:Integer;
+    F_nome:String;
+    F_senha:String;
+    function getSenha: string;
+    procedure setSenha (const Value: String);
+
+  public
+  constructor Create(aConexao:TZCOnnection);
+    destructor Destroy; override;
+    function Gravar:Boolean;
+    function Atualizar:Boolean;
+    function Selecionar(id:Integer):Boolean;
+    function Apagar:Boolean;
+    function Logar(aUsuario, aSenha: String): Boolean;
+    function UsuarioExiste(aUsuario: String): Boolean;
+    function AlterarSenha: Boolean;
+
+    published
+    property codigo  :Integer  read F_usuarioId   write F_usuarioId;
+    property nome    :string   read F_nome        write F_nome;
+    property senha   :string   read getSenha      write setSenha;
+  end;
+
+implementation
+
+Constructor TUsuario.Create(aConexao:TZConnection);
+begin
+  conectDB:=aConexao;
+end;
+
+destructor TUsuario.Destroy;
+begin
+
+  inherited;
+end;
+
+function TUsuario.Apagar: Boolean;
+var qry:TZQuery;
+begin
+  if MessageDlg ('Apagar o registro: '+#13+#13+
+                 'Código: '+inttostr (F_usuarioId)+#13+
+                 'Nome: ' +F_nome, mtConfirmation, [mbYes, mbNo], 0)=mrNo then begin
+                   result:=false;
+                   abort;
+                 end;
+
+  try
+    Result:=true;
+    qry:=Tzquery.Create(nil);
+    qry.Connection:=ConectDb;
+    qry.SQL.Clear;
+    qry.SQL.Add('DELETE FROM usuarios'+
+                ' WHERE usuarioId=:usuarioId ');
+    qry.ParamByName('usuarioId').AsInteger :=f_usuarioId;
+    try
+      qry.ExecSQL;
+    except
+      result := false;
+    end;
+
+  finally
+    if Assigned(qry) then
+       FreeAndNil(qry);
+  end;
+end;
+
+function TUsuario.Atualizar: Boolean;
+var qry:TZQuery;
+begin
+  try
+    Result:=true;
+    qry:=TZQuery.Create(nil);
+    qry.Connection:=ConectDb;
+    qry.sql.Clear;
+    qry.SQL.Add(' UPDATE usuarios '+
+                '  SET nome = :nome ' +
+                ' ,senha = :senha' +
+                ' WHERE usuarioId = :usuarioId ');
+    qry.ParamByName('usuarioId').AsInteger :=Self.F_usuarioId;
+    qry.ParamByName('nome').AsString :=Self.F_nome;
+    qry.ParamByName('senha').AsString :=Self.F_senha;
+
+    try
+      qry.ExecSQL;
+    except
+       result:=false;
+    end;
+
+  finally
+    if Assigned(qry) then
+    FreeAndNil(qry);
+  end;
+end;
+
+function Tusuario.Gravar:Boolean;
+var qry:TZQuery;
+begin
+  try
+    Result:=true;
+    qry:=TZQuery.Create(nil);
+    qry.Connection:=ConectDB;
+    qry.SQL.Clear;
+    qry.SQL.add('INSERT INTO usuarios (nome, '+
+                '                      senha )' +
+                ' Values               (:nome,' +
+                '                       :senha )');
+    qry.ParamByName('nome').AsString  :=self.F_nome;
+    qry.ParamByName('senha').AsString :=Self.F_senha;
+
+    try
+      qry.ExecSQL;
+    except
+     result:=false;
+    end;
+  finally
+     if Assigned(qry) then
+     freeAndNil(qry);
+  end;
+end;
+
+function Tusuario.Selecionar(id:Integer):Boolean;
+var qry:TzQuery;
+begin
+  try
+    Result:=true;
+    qry:=TZQuery.Create(nil);
+    qry.Connection:=ConectDB;
+    qry.SQL.Clear;
+    qry.SQL.Add('SELECT usuarioId,'+
+                '        nome, '+
+                '        senha ' +
+                ' FROM usuarios ' +
+                ' WHERE usuarioId=:usuarioId');
+    qry.ParamByName('usuarioId').AsInteger:=id;
+    try
+      qry.Open;
+
+      self.F_usuarioId  := qry.FieldByName('usuarioId').AsInteger;
+      self.F_nome       := qry.FieldByName('nome').AsString;
+      self.F_senha      := qry.FieldByName('senha').AsString;
+
+    except
+      Result:=false;
+    end;
+
+  finally
+    if Assigned(qry) then
+    freeAndNil(qry);
+  end;
+end;
+
+function TUsuario.UsuarioExiste(aUsuario:String):Boolean;
+var Qry:TZQuery;
+begin
+  try
+    QRY:=TzQuery.Create(nil);
+    qry.Connection:=ConectDB;
+    qry.SQL.Clear;
+    qry.SQL.Add(' SELECT COUNT(usuarioId) AS Qtde ' +
+                ' FROM usuarios' +
+                ' WHERE nome =:nome ');
+    qry.ParamByName('nome').AsString :=aUsuario;
+    try
+      qry.Open;
+
+      if qry.FieldByName('qtde').AsInteger>0 then
+      result := true
+      else
+      result := false;
+
+    except
+       Result:=false;
+    end;
+  finally
+     if Assigned(qry) then
+        FreeAndnil(qry);
+  end;
+end;
+
+function TUsuario.getSenha: string;
+begin
+  Result:= desCriptografar(self.F_senha);
+end;
+
+procedure Tusuario.setSenha(const Value: string);
+begin
+  self.F_senha := criptografar(value);
+end;
+
+function Tusuario.Logar(aUsuario:String; aSenha:String):Boolean;
+var qry:TZQuery;
+begin
+  try
+    qry:=TZQuery.Create(nil);
+    qry.Connection:=ConectDB;
+    qry.SQL.Clear;
+    qry.SQL.Add('SELECT usuarioId, '+
+                ' nome, ' +
+                ' senha ' +
+                '  FROM usuarios ' +
+                '  WHERE nome=:nome AND senha =:Senha ');
+    qry.ParamByName('nome').AsString:=aUsuario;
+    qry.ParamByName('senha').AsString:=Criptografar(aSenha);
+    try
+      qry.Open;
+
+      if qry.FieldByName('usuarioId').AsInteger>0 then   begin
+      result:=true;
+      F_usuarioId:=qry.FieldByName('usuarioId').AsInteger;
+      f_nome :=qry.FieldByName('nome').AsString;
+      f_senha :=qry.FieldByName('senha').AsString;
+      end
+      else
+      result:=false;
+
+    Except
+    result:=false;
+    end;
+  finally
+    if Assigned(qry) then
+    FreeAndNil(qry);
+  end;
+end;
+
+function Tusuario.AlterarSenha: Boolean;
+var qry:TZQuery;
+begin
+  try
+    result:=true;
+    qry:=TZquery.Create(nil);
+    qry.Connection:=ConectDb;
+    qry.SQL.Clear;
+    qry.SQL.Add('UPDATE usuarios ' +
+                ' SET senha =: senha ' +
+                ' WHERE usuarioId =:usuarioID');
+    qry.ParamByName('usuarioId').AsInteger :=Self.F_usuarioId;
+    qry.ParamByName('senha').AsString :=Self.F_senha;
+     try
+      qry.ExecSQL;
+     except
+       result:=false;
+     end;
+  finally
+    if Assigned(qry) then
+       FreeAndNil(qry);
+  end;
+end;
+end.

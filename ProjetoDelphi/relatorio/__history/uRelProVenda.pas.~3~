@@ -1,0 +1,87 @@
+unit uRelProVenda;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, ZAbstractRODataset,
+  ZAbstractDataset, ZDataset, uDTMConect, RLReport, RLFilters, RLPDFFilter,
+  RLXLSXFilter, RLXLSFilter;
+
+type
+  TfrmRelProVenda = class(TForm)
+    qryVenda: TZQuery;
+    dtsVenda: TDataSource;
+    Relatorio: TRLReport;
+    Cabecalho: TRLBand;
+    RLLabel1: TRLLabel;
+    RLDraw1: TRLDraw;
+    rodape: TRLBand;
+    RLDraw2: TRLDraw;
+    RLSystemInfo1: TRLSystemInfo;
+    RLSystemInfo2: TRLSystemInfo;
+    RLSystemInfo3: TRLSystemInfo;
+    RLLabel2: TRLLabel;
+    RLLabel3: TRLLabel;
+    RLPDFFilter1: TRLPDFFilter;
+    RLXLSFilter1: TRLXLSFilter;
+    RLXLSXFilter1: TRLXLSXFilter;
+    BandaGrupo: TRLGroup;
+    RLBand3: TRLBand;
+    RLBand2: TRLBand;
+    RLPanel1: TRLPanel;
+    RLLabel4: TRLLabel;
+    RLLabel5: TRLLabel;
+    RLLabel7: TRLLabel;
+    RLBand1: TRLBand;
+    RLDBText1: TRLDBText;
+    RLDBText2: TRLDBText;
+    RLDBText4: TRLDBText;
+    RLLabel8: TRLLabel;
+    RLDBText5: TRLDBText;
+    RLBand4: TRLBand;
+    RLDBResult1: TRLDBResult;
+    RLDraw3: TRLDraw;
+    RLLabel9: TRLLabel;
+    qryVendavendaId: TIntegerField;
+    qryVendaclienteId: TIntegerField;
+    qryVendaNome: TWideStringField;
+    qryVendaDataVenda: TDateTimeField;
+    qryVendaTotalVenda: TFloatField;
+    RLBand5: TRLBand;
+    RLDraw4: TRLDraw;
+    RLLabel6: TRLLabel;
+    RLDBResult2: TRLDBResult;
+    qryVendaItens: TZQuery;
+    IntegerField1: TIntegerField;
+    IntegerField2: TIntegerField;
+    WideStringField1: TWideStringField;
+    DateTimeField1: TDateTimeField;
+    FloatField1: TFloatField;
+    dtsVendaItens: TDataSource;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmRelProVenda: TfrmRelProVenda;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmRelProVenda.FormCreate(Sender: TObject);
+begin
+    qryVenda.Open;
+end;
+
+procedure TfrmRelProVenda.FormDestroy(Sender: TObject);
+begin
+    qryVenda.Close;
+end;
+
+end.

@@ -1,0 +1,35 @@
+inherited frmCadUsuario: TfrmCadUsuario
+  Caption = 'frmCadUsuario'
+  ExplicitWidth = 866
+  ExplicitHeight = 580
+  TextHeight = 15
+  inherited pnlRodape: TPanel
+    inherited btnNavega: TDBNavigator
+      Hints.Strings = ()
+    end
+  end
+  inherited pgcPrincipal: TPageControl
+    inherited tabListagem: TTabSheet
+      ExplicitWidth = 846
+      ExplicitHeight = 448
+      inherited pnlListagemTopo: TPanel
+        Width = 846
+      end
+      inherited grdListagem: TDBGrid
+        Width = 846
+        Height = 367
+      end
+    end
+    inherited tabManutencao: TTabSheet
+      ExplicitWidth = 846
+      ExplicitHeight = 448
+    end
+  end
+  inherited qryListagem: TZQuery
+    SQL.Strings = (
+      'select usuarioId,'
+      'nome, senha'
+      'from usuarios')
+    Left = 604
+  end
+end

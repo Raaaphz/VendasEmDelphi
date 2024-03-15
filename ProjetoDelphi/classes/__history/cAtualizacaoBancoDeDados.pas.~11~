@@ -1,0 +1,169 @@
+unit cAtualizacaoBancoDeDados;
+interface
+
+uses system.Classes, vcl.Controls,vcl.ExtCtrls, vcl.Dialogs, ZAbstractConnection, ZConnection, ZAbstractRODataset,
+ZAbstractDataset, Zdataset, System.SysUtils;
+
+type
+TatualizaBancoDados = class
+private
+ConectDb:TZConnection;
+
+public
+Constructor Create(aConexao:TZConnection);
+procedure ExecutaDiretoBancoDeDados(aScript: String);
+end;
+
+type
+  TAtualizaBancoDadosMSSQL = Class
+
+  private
+  public
+
+  ConectDB:TZConnection;
+  function AtualizarBancoDeDadosMSSQL: Boolean;
+  constructor Create(aConexao: TZConnection);
+End;
+
+
+type
+  TAtualizacaoTableMSSQL = class(TAtualizaBancoDados)
+private
+  function TabelaExiste(aNomeTabela:String):Boolean;
+  procedure Categoria;
+
+  protected
+
+  public
+  constructor Create(aConexao:TZConnection);
+  destructor Destroy; override;
+  end;
+
+
+implementation
+
+{ TatualizaBancoDados }
+
+constructor TatualizaBancoDados.Create(aConexao: TZConnection);
+begin
+ conectDb:=aConexao;
+end;
+
+procedure TatualizaBancoDados.ExecutaDiretoBancoDeDados(aScript: String);
+var qry:tzQuery;
+begin
+try
+  qry:=TZQuery.Create(nil);
+  qry.Connection:=conectdb;
+  qry.SQL.Clear;
+  qry.SQL.Add(ascript);
+  try
+     ConectDB.StartTransaction;
+     qry.ExecSQL;
+     conectDb.Commit;
+  except
+     ConectDB.RollBack;
+  end;
+finally
+  qry.Close;
+  if Assigned(qry) then
+  FreeAndNil(qry);
+end;
+
+end;
+
+{ TAtualizaBancoDadosMSSQL }
+
+function TAtualizaBancoDadosMSSQL.AtualizarBancoDeDadosMSSQL: Boolean;
+var oAtualizarDB:TAtualizaBancoDados;
+    oTabela: TAtualizacaoTableMSSQL;
+begin
+  try
+    oatualizarDb:=TAtualizaBancoDados.Create(conectDb);
+
+    oTabela:=TAtualizacaoTableMSSQL.Create(ConectDB);
+
+  finally
+  if assigned(oatualizarDB) then
+     freeandNil(oAtualizarDB);
+
+   if assigned(oTabela) then
+     freeandNil(oTabela);
+  end;
+end;
+
+constructor TAtualizaBancoDadosMSSQL.Create(aConexao: TZConnection);
+begin
+  conectDb:=aConexao;
+end;
+
+
+{ TAtualizacaoTableMSSQL }
+
+constructor TAtualizacaoTableMSSQL.Create(aConexao: TZConnection);
+begin
+   conectDB := aConexao;
+  categoria;
+end;
+
+destructor TAtualizacaoTableMSSQL.Destroy;
+begin
+
+  inherited;
+end;
+{
+function TAtualizacaoTableMSSQL.TabelaExiste(aNomeTabela: String): Boolean;
+var qry:TZQuery;
+begin
+    try
+      Result:=False;
+      Qry:=TZQuery.Create(nil);
+      qry.SQL.Add(' SELECT OBJECT_ID (:NomeTabela) AS ID ');
+      qry.ParamByName('NomeTabela').AsString:=aNomeTabela;
+      qry.Open;
+
+      if Qry.FieldByName('ID').AsInteger>0 then
+        Result:=True;
+
+      Finally
+      qry.Close;
+      if Assigned(qry) then
+        FreeAndNil(qry);
+    end;
+end;
+        }
+
+function TAtualizacaoTableMSSQL.TabelaExiste(aNomeTabela: String): Boolean;
+var
+  qry: TZQuery;
+begin
+  qry := TZQuery.Create(nil);
+  try
+    // Assuming that you have a connection named 'MyConnection' assigned to qry
+    qry.Connection := conectDB;
+
+    // Directly inserting the table name into the SQL string
+    qry.SQL.Text := 'SELECT OBJECT_ID(' + QuotedStr(aNomeTabela) + ') AS ID';
+
+    qry.Open;
+    Result := not qry.FieldByName('ID').IsNull;
+  finally
+    qry.Free;
+  end;
+end;
+
+procedure TAtualizacaoTableMSSQL.Categoria;
+begin
+  if not tabelaExiste('categorias') then
+  begin
+     ExecutaDiretoBancoDeDados(
+
+  '  CREATE TABLE categorias (  '+
+  '  categoriaId int IDENTITY(1,1) NOT NULL,  '+
+  '  descricao varchar(30) NULL,  '+
+  '  PRIMARY KEY (categoriaId)   ' +
+   ') '
+        );
+  end;
+ end;
+end.

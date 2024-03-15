@@ -1,0 +1,8 @@
+unit uEnum;
+
+interface
+Type
+  tEstadoDoCadastro = (ecNovo, ecAlterar, ecNenhum);
+implementation
+
+end.

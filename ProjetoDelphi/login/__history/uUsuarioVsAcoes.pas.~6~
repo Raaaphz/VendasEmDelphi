@@ -1,0 +1,74 @@
+unit uUsuarioVsAcoes;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Data.DB,
+  ZAbstractRODataset, ZAbstractDataset, ZDataset, Vcl.Grids, Vcl.DBGrids, uDTMConect,
+  Vcl.StdCtrls, Vcl.Buttons;
+
+
+type
+  TfrmUsuarioVsAcoes = class(TForm)
+    Panel1: TPanel;
+    Panel3: TPanel;
+    Panel2: TPanel;
+    Splitter1: TSplitter;
+    DBGrid1: TDBGrid;
+    DBGrid2: TDBGrid;
+    qryUsuario: TZQuery;
+    dtsUsuario: TDataSource;
+    qryAcoes: TZQuery;
+    dtsAcoes: TDataSource;
+    qryUsuariousuarioId: TIntegerField;
+    qryUsuarioNome: TWideStringField;
+    qryAcoesusuarioId: TIntegerField;
+    qryAcoesacaoAcessoId: TIntegerField;
+    qryAcoesdescricao: TWideStringField;
+    qryAcoesativo: TBooleanField;
+    btnFechar: TBitBtn;
+    procedure qryUsuarioAfterScroll(DataSet: TDataSet);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+    procedure SelecionarAcoesAcessoPorUsuario;
+
+  public
+    { Public declarations }
+  end;
+
+var
+  frmUsuarioVsAcoes: TfrmUsuarioVsAcoes;
+
+implementation
+
+{$R *.dfm}
+
+{ TfrmUsuarioVsAcoes }
+
+procedure TfrmUsuarioVsAcoes.FormShow(Sender: TObject);
+begin
+  try
+    qryUsuario.DisableControls;
+    qryUsuario.Open;
+    SelecionarAcoesAcessoPorUsuario;
+  finally
+    qryUsuario.EnableControls;
+  end;
+
+end;
+
+procedure TfrmUsuarioVsAcoes.qryUsuarioAfterScroll(DataSet: TDataSet);
+begin
+   SelecionarAcoesAcessoPorUsuario;
+end;
+
+procedure TfrmUsuarioVsAcoes.SelecionarAcoesAcessoPorUsuario;
+begin
+  qryAcoes.Close;
+  qryAcoes.ParamByName('usuarioId').AsInteger:=qryUsuario.FieldByName('usuarioID').AsInteger;
+  qryAcoes.Open;
+end;
+
+end.

@@ -1,0 +1,25 @@
+unit uDTMConect;
+
+interface
+
+uses
+  System.SysUtils, System.Classes;
+
+type
+  TdtmConect = class(TDataModule)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  dtmConect: TdtmConect;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+end.

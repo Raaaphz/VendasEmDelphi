@@ -1,0 +1,250 @@
+unit cCadCliente;
+interface
+     uses system.Classes, vcl.Controls,vcl.ExtCtrls, vcl.Dialogs, ZAbstractConnection, ZConnection, ZAbstractRODataset,
+ZAbstractDataset, Zdataset, System.SysUtils;
+
+type
+TCliente = class
+  private
+  ConexaoDB:TZConnection;
+  F_categoriaId:Integer;
+  F_descricao:string;
+    F_datanascimento: TDateTime;
+    F_email: string;
+    F_bairro: string;
+    F_clienteId: Integer;
+    F_cep: string;
+    F_nome: string;
+    F_cidade: string;
+    F_endereco: string;
+    F_telefone: string;
+    F_estado: string;
+    function getCodigo: Integer;
+    function getDescricao: string;
+    procedure setCodigo(const Value: Integer);
+    procedure setDescricao(const Value: string);
+
+
+  public
+
+constructor Create(aConexao:TZCOnnection);
+destructor Destroy; override;
+function Gravar:Boolean;
+function Atualizar:Boolean;
+function Selecionar(id:Integer):Boolean;
+function Apagar:Boolean;
+
+published
+  property codigo:        Integer   read F_clienteId      write F_clienteId;
+  property nome:          string    read F_nome           write F_nome;
+  property endereco:      string    read F_endereco       write F_endereco;
+  property cidade:        string    read F_cidade         write F_cidade;
+  property bairro:        string    read F_bairro         write F_bairro;
+  property estado:        string    read F_estado         write F_estado;
+  property cep:           string    read F_cep            write F_cep;
+  property telefone:      string    read F_telefone       write F_telefone;
+  property email:         string    read F_email          write F_email;
+  property datanascimento:TDateTime read F_datanascimento write F_datanascimento;
+end;
+
+implementation
+
+{$region 'Constructor and Destructor'}
+constructor Tcliente.Create(aConexao:TZConnection);
+begin
+  ConexaoDB:=aConexao;
+end;
+
+destructor TCliente.Destroy;
+begin
+  inherited;
+end;
+{$endregion}
+
+{$region 'CRUD'}
+  function Tcliente.Apagar: Boolean;
+  var qry:TZQuery;
+  begin
+    if MessageDlg('Apagar o Registro: '+#13+#13+
+    'Codigo: ' +IntToStr(F_clienteId)+#13+
+    'Descricao: '+F_nome, mtConfirmation, [mbYes, mbNo],0)=mrNo then begin
+      Result:=false;
+      abort;
+    end;
+    try
+      Result:=true;
+      qry:=TZQuery.Create(nil);
+      qry.Connection:=ConexaoDB;
+      qry.SQL.Clear;
+      Qry.SQL.Add('DELETE FROM CLIENTE '+
+                  ' WHERE clienteId=:clienteId ');
+      qry.ParamByName('clienteId').AsInteger :=F_clienteId;
+      try
+        Qry.ExecSQL;
+      except
+        Result:=false;
+      end;
+
+    finally
+      if Assigned(qry) then
+      FreeAndNil(qry);
+    end;
+  end;
+
+function TCliente.Atualizar: Boolean;
+var Qry:TZQuery;
+begin
+  try
+    result:=true;
+    qry:=TZQuery.Create(nil);
+    qry.Connection:=ConexaoDB;
+    qry.SQL.Clear;
+    qry.SQL.Add('UPDATE clientes '+
+                '   SET nome            =:nome '+
+                '       ,endereco       =:endereco '+
+                '       ,cidade         =:cidade '+
+                '       ,bairro         =:bairro '+
+                '       ,estado         =:estado '+
+                '       ,telefone       =:telefone '+
+                '       ,email          =:email '+
+                '       ,dataNascimento =:dataNascimento '+
+                ' WHERE clienteId=:clienteId ');
+    qry.ParamByName('clienteId').AsInteger :=Self.F_clienteId;
+    qry.ParamByName('nome').AsString :=Self.F_nome;
+    qry.ParamByName('endereco').AsString :=Self.F_endereco;
+    qry.ParamByName('cidade').AsString :=Self.F_cidade;
+    qry.ParamByName('bairro').AsString :=Self.F_bairro;
+    qry.ParamByName('estado').AsString :=Self.F_estado;
+    qry.ParamByName('cep').AsString :=Self.F_cep;
+    qry.ParamByName('telefone').AsString :=Self.F_email;
+    qry.ParamByName('dataNascimento').AsDateTime :=self.F_datanascimento;
+
+    try
+      qry.ExecSQL;
+
+    except
+      Result:=false;
+    end;
+
+  finally
+    if Assigned(qry) then
+       FreeAndNil(qry);
+  end;
+end;
+
+function TCliente.getCodigo: Integer;
+begin
+
+end;
+
+function TCliente.getDescricao: string;
+begin
+
+end;
+
+function TCliente.Gravar: Boolean;
+var qry:TZQuery;
+begin
+  try
+    Result:=true;
+    qry:=TZQuery.Create(nil);
+    qry.Connection:=ConexaoDB;
+    qry.SQL.Clear;
+    qry.SQL.Add('INSERT INTO clientes (nome, '+
+                '                      endereco, '+
+                '                      cidade, '+
+                '                      bairro, '+
+                '                      estado, '+
+                '                      cep, '+
+                '                      telefone, '+
+                '                      email, '+
+                '                      datanascimento) '+
+                ' VALUES              (:nome, '+
+                '                      :endereco, '+
+                '                      :cidade, '+
+                '                      :bairro, '+
+                '                      :estado, '+
+                '                      :cep, '+
+                '                      :telefone, '+
+                '                      :email, '+
+                '                      :datanascimento)' );
+
+    qry.ParamByName('nome').AsString :=Self.F_nome;
+    qry.ParamByName('endereco').AsString :=Self.F_endereco;
+    qry.ParamByName('cidade').AsString :=Self.F_cidade;
+    qry.ParamByName('bairro').AsString :=Self.F_bairro;
+    qry.ParamByName('estado').AsString :=Self.F_estado;
+    qry.ParamByName('cep').AsString :=Self.F_cep;
+    qry.ParamByName('telefone').AsString :=Self.F_telefone;
+    qry.ParamByName('email').AsString :=Self.F_email;
+    qry.ParamByName('dataNascimento').AsDateTime :=Self.F_dataNascimento;
+
+    try
+      qry.ExecSQL;
+    except;
+      Result:=false;
+    end;
+
+  finally
+    if Assigned(qry) then
+       FreeAndNil(qry);
+  end;
+end;
+
+function TCliente.Selecionar(id: Integer): Boolean;
+var qry:TZQuery;
+begin
+  try
+    Result:=true;
+    qry:=TZQuery.Create(nil);
+    qry.Connection:=ConexaoDB;
+    qry.SQL.Clear;
+    qry.SQL.Add('SELECT  clienteId, '+
+                '                  nome, '+
+                '                 endereco, '+
+                '                 cidade, '+
+                '                 bairro, '+
+                '                 estado, '+
+                '                 cep, '+
+                '                 telefone, '+
+                '                 email, '+
+                '                 datanascimento'+
+                ' FROM clientes '+
+                ' WHERE clienteId=:clienteId');
+    qry.ParamByName('clienteId').AsInteger:=id;
+    try
+      qry.Open;
+
+      Self.F_clienteId := Qry.FieldByName('clienteId').AsInteger;
+      Self.F_nome := Qry.FieldByName('nome').AsString;
+      Self.F_endereco := Qry.FieldByName('endereco').AsString;
+      Self.F_cidade := Qry.FieldByName('cidade').AsString;
+      Self.F_bairro := Qry.FieldByName('bairro').AsString;
+      Self.F_estado := Qry.FieldByName('estado').AsString;
+      Self.F_cep := Qry.FieldByName('cep').AsString;
+      Self.F_telefone :=qry.FieldByName('Telefone').AsString;
+      Self.F_email := Qry.FieldByName('email').AsString;
+      Self.F_dataNascimento := Qry.FieldByName('dataNascimento').AsDateTime;
+
+    except
+      result:=false;
+    end;
+  finally
+    if Assigned(qry) then
+    freeandnil(qry);
+
+  end;
+
+end;
+
+procedure TCliente.setCodigo(const Value: Integer);
+begin
+
+end;
+
+procedure TCliente.setDescricao(const Value: string);
+begin
+
+end;
+      {$endregion}
+end.

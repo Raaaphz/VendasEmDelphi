@@ -1,0 +1,48 @@
+unit uCadCliente;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uTelaHeranca, Data.DB,
+  ZAbstractRODataset, ZAbstractDataset, ZDataset, Vcl.Grids, Vcl.DBGrids,
+  Vcl.StdCtrls, Vcl.Mask, Vcl.ComCtrls, Vcl.DBCtrls, Vcl.Buttons, Vcl.ExtCtrls,
+  RxToolEdit;
+
+type
+  TfrmCadCliente = class(TfrmHeranca)
+    edtNome: TLabeledEdit;
+    edtClienteId: TLabeledEdit;
+    edtCEP: TMaskEdit;
+    Label1: TLabel;
+    edtEndereco: TLabeledEdit;
+    edtBairro: TLabeledEdit;
+    edtCidade: TLabeledEdit;
+    edtTelefone: TMaskEdit;
+    Label2: TLabel;
+    edtEmail: TLabeledEdit;
+    edtDataNascimento: TDateEdit;
+    Label3: TLabel;
+    qryListagemclienteId: TIntegerField;
+    qryListagemnome: TWideStringField;
+    qryListagemendereco: TWideStringField;
+    qryListagemcidade: TWideStringField;
+    qryListagembairro: TWideStringField;
+    qryListagemestado: TWideStringField;
+    qryListagemcep: TWideStringField;
+    qryListagemtelefone: TWideStringField;
+    qryListagememail: TWideStringField;
+    qryListagemdatanascimento: TDateTimeField;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCadCliente: TfrmCadCliente;
+
+implementation
+{$R *.dfm}
+
+end.

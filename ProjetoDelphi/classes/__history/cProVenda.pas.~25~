@@ -1,0 +1,424 @@
+unit cProVenda;
+interface
+
+uses System.Classes, Vcl.Controls, Vcl.ExtCtrls, Vcl.Dialogs,
+     ZAbstractConnection, ZConnection, ZAbstractRODataset, ZAbstractDataset, ZDataSet,
+     Data.DB, Datasnap.DBClient, System.SysUtils,
+     cControleEstoqueTESTE, uEnum;
+
+type
+  TVenda = class
+  private
+      ConectDB:TZConnection;
+      F_vendaId:Integer;
+      F_clienteId:Integer;
+      F_dataVenda:TDateTime;
+      F_totalvenda: Double;
+    function InserirItens(cds: TClientDataSet; IdVenda: Integer): Boolean;
+    function ApagaItens(cds: TclientDataSet): Boolean;
+    function InNot(cds: TClientDataSet): String;
+    function VerificaItem(vendaId, produtoId: Integer): Boolean;
+    function AtualizarItem(cds: TClientDataSet): Boolean;
+    procedure RetornarEstoque(sCodigo: String; acao: tExcluirEstoque);
+    procedure baixarEstoque(produtoId: integer; Quantidade: Double);
+
+  public
+   constructor Create(aConexao:TZCOnnection);
+    destructor Destroy; override;
+    function Gravar(cds:TClientDataSet):Boolean;
+    function Atualizar(cds:TclientDataSet):Boolean;
+    function Selecionar(id: Integer; var cds:TClientDataSet):Boolean;
+    function Apagar:Boolean;
+
+  published
+    property VendaId:Integer       read F_vendaId     write F_vendaId;
+    property ClienteId:integer     read F_clienteId   write F_clienteId;
+    property DataVenda:TDateTime   read F_dataVenda   write F_dataVenda;
+    property TotalVenda:Double     read F_totalVenda  write F_totalVenda;
+  end;
+
+implementation
+
+{$region 'Constructor and Destructor'}
+constructor Tvenda.Create(aConexao: TZConnection);
+begin
+  conectDB:=aConexao;
+end;
+
+destructor TVenda.Destroy;
+begin
+  inherited;
+end;
+
+{$endRegion}
+
+{$region 'CRUD'}
+function TVenda.Apagar: Boolean;
+var qry:TZQuery;
+begin
+  if MessageDlg('Apagar o Registro: '+#13+#13+
+                'Venda Nro: '+IntToStr(vendaId), mtConfirmation, [mbYes, mbNo], 0) =mrNo then begin
+     Result:=false;
+     abort;
+  end;
+
+  try
+    Result:=true;
+    ConectDB.StartTransaction;
+    qry:=TZquery.Create(nil);
+    qry.Connection:=ConectDB;
+    qry.SQL.Clear;
+    qry.SQL.Add('DELETE FROM vendasItens '+
+                ' WHERE vendaId=:vendaId ');
+    qry.ParamByName('vendaId').AsInteger :=vendaid;
+
+    TRY
+      qry.ExecSQL;
+      qry.SQL.Clear;
+      qry.SQL.Add('DELETE FROM vendas '+
+                  ' WHERE vendaId=:vendaId ');
+      qry.ParamByName ('vendaId').AsInteger :=vendaid;
+      qry.ExecSQL;
+      ConectDB.Commit;
+    Except
+    ConectDB.rollback;
+      result:=false;
+    END;
+
+  finally
+    if Assigned(qry) then
+    freeAndNil(qry);
+  end;
+end;
+
+function TVenda.Atualizar(cds:TclientDataSet): Boolean;
+var Qry:TZQuery;
+begin
+  try
+      Result:=true;
+      conectDB.StartTransaction;
+      qry:=TZQuery.Create(nil);
+      qry.Connection:=ConectDB;
+      qry.SQL.Clear;
+      qry.SQL.Add('UPDATE vendas '+
+                  '  SET clienteId=:clienteId '+
+                  '      ,dataVenda=:dataVenda '+
+                  '      ,totalVenda=:totalVenda '+
+                  '  WHERE vendaId=:vendaId ');
+      qry.ParamByName('vendaId').AsInteger :=Self.F_vendaId;
+      qry.ParamByName('clienteId').AsInteger :=Self.F_clienteId;
+      qry.ParamByName('dataVenda').AsDateTime :=Self.F_dataVenda;
+      qry.ParamByName('totalVenda').AsFloat :=Self.F_totalvenda;
+
+      try
+        qry.ExecSQL;
+        apagaItens(cds); 
+
+        cds.First;
+        while not cds.Eof do begin
+        if VerificaItem(self.F_vendaId, cds.FieldByName('produtoId').AsInteger) then begin
+           AtualizarItem(cds);
+        end
+        else begin
+          InserirItens(cds, Self.F_vendaId);
+        end;
+        
+        cds.Next;
+        end;
+        
+      Except
+        Result:=false;
+        ConectDb.Rollback;
+      end;
+
+      conectdb.commit;
+  finally
+    if Assigned(qry) then
+       FreeAndNil(qry);
+  end;
+end;
+
+function TVenda.AtualizarItem(cds:TClientDataSet): Boolean;
+var qry:TZquery;
+  I: TObject;
+begin
+  try
+    RetornarEstoque (cds.FieldByName('produtoId').AsString, aeeAlterar);
+    qry:=TZQuery.Create(NIL);
+    qry.Connection:=conectdb;
+    qry.SQL.Clear;
+    qry.SQL.Add('UPDATE VendasItens '+
+                ' SET ValorUnitario=:ValorUnitario '+
+                ' ,Quantidade=:Quantidade '+
+                ' ,TotalProduto=:TotalProduto '+
+                ' WHERE vendaId=:vendaId AND produtoId=:produtoId ');
+    qry.ParamByName('vendaId').AsInteger :=Self.F_vendaId;
+    qry.ParamByName('ProdutoId').AsInteger :=cds.FieldByName('valorUnitario').AsInteger;
+    qry.ParamByName('ValorUnitario').AsFloat :=cds.FieldByName('valorUnitario').AsFloat;
+    qry.ParamByName('Quantidade').AsFloat :=cds.FieldByName('quantidade').AsFloat;
+    qry.ParamByName('TotalProduto').AsFloat :=cds.FieldByName('valorTotalProduto').AsFloat;
+
+    try	
+      qry.ExecSQL;
+    except
+    result :=false;
+    end;
+
+  finally
+    if ASsigned(qry) then
+       FreeAndNil(qry);
+  end;
+end;
+
+function Tvenda.VerificaItem(vendaId: Integer; produtoId:Integer): Boolean;
+var qry:TZQuery;
+begin
+  try
+    qry:=TZQuery.Create(NIL);
+    qry.Connection:=conectdb;
+    qry.SQL.Clear;
+    qry.SQL.Add('SELECT Count(VendaId) AS Qtde' +
+                ' FROM VendasItens '+
+                ' WHERE vendaId=:vendaId AND produtoId=:produtoId ');
+    qry.ParamByName('vendaId').AsInteger :=vendaId;
+    qry.ParamByName('produtoId').AsInteger :=produtoId;
+    try		
+      qry.Open;
+
+      if qry.FieldByName('Qtde').AsInteger>0 then
+      result:=True
+      else
+      result:=false;
+      
+    except
+      result:=false;
+    end;
+  finally
+    if Assigned(qry) then
+    freeandNil(qry);
+  end;
+end;
+
+function Tvenda.ApagaItens(cds:TclientDataSet): Boolean;
+var qry:TZQuery;
+begin
+  try
+    Result:=true;
+    qry:=TZquery.Create(NIL);
+    qry.Connection:=conectdb;
+    qry.SQL.Add (' DELETE '+
+                 ' FROM VendasItens '+
+                 ' WHERE VendaId=:VendaId '+
+                 ' AND produtoId NOT IN ('+InNot(cds)+')');
+    qry.ParamByName('vendaId').AsInteger :=Self.F_vendaId;
+
+    try
+      qry.ExecSQL;
+    except
+      result:=false;
+    end;
+  finally
+    if Assigned(qry) then
+       freeandNil(qry);
+  end;
+end;
+
+function Tvenda.InNot(cds:TClientDataSet):String;
+var sInNot:String;
+begin
+  sInNot:=EmptyStr;
+  cds.First;
+  while not cds.Eof do begin
+  if sInNot=EmptyStr then
+  sInNot := cds.FieldByName('produtoId').AsString
+  else
+  sinnot :=sInNot +','+cds.FieldByName('produtoId').AsString;
+  cds.Next;
+  end;
+  result:=sInNot;
+end;
+
+function TVenda.Gravar(cds: TClientDataSet): Boolean;
+var
+  qry: TZQuery;
+  IdVendaGerado: Integer;
+begin
+  Result := True;
+  try
+    ConectDB.StartTransaction;
+    qry := TZQuery.Create(nil);
+    try
+      qry.Connection := ConectDB;
+
+      qry.SQL.Clear;
+      qry.SQL.Add('INSERT INTO vendas (clienteId, dataVenda, totalVenda) ' +
+                  'VALUES (:clienteId, :dataVenda, :totalVenda)');
+      qry.ParamByName('clienteId').AsInteger := Self.F_clienteId;
+      qry.ParamByName('dataVenda').AsDateTime := Self.F_dataVenda;
+      qry.ParamByName('totalVenda').AsFloat := Self.F_totalvenda;
+      qry.ExecSQL;
+
+      // Obter o ID da venda gerada
+      qry.SQL.Clear;
+      qry.SQL.Add('SELECT SCOPE_IDENTITY() AS ID');
+      qry.Open;
+      IdVendaGerado := qry.FieldByName('ID').AsInteger;
+
+      // Inserir itens da venda
+      cds.First;
+      while not cds.Eof do
+      begin
+        InserirItens(cds, IdVendaGerado);
+        cds.Next;
+      end;
+
+      ConectDB.Commit;
+    except
+      ConectDB.Rollback;
+      Result := False;
+    end;
+  finally
+    qry.Free;
+  end;
+end;
+
+function Tvenda.InserirItens(cds:TClientDataSet; IdVenda:Integer):Boolean;
+var qry:TZQuery;
+begin
+  try
+    result:=true;
+    qry:=TZQuery.Create(nil);
+    qry.Connection:=ConectDB;
+    qry.SQL.Clear;
+    qry.SQL.Add('INSERT INTO VendasItens ( VendaID, ProdutoID, ValorUnitario, Quantidade, TotalProduto) ' +
+                '             Values(:VendaID,:ProdutoID,:ValorUnitario,:Quantidade,:TotalProduto) ' );
+    qry.ParamByName('VendaID').AsInteger :=IdVenda;
+    qry.ParamByName('ProdutoID').AsInteger := cds.FieldByName('produtoId').AsInteger;
+    qry.ParamByName('ValorUnitario').AsFloat := cds.FieldByName('valorUnitario').AsFloat;
+    qry.ParamByName('Quantidade').AsFloat := cds.FieldByName('quantidade').AsFloat;
+    qry.ParamByName('TotalProduto').AsFloat :=cds.FieldByName('valorTotalProduto').AsFloat;
+    try
+      qry.ExecSQL;
+      baixarEstoque (cds.FieldByName('produtoId').AsInteger, cds.FieldByName('quantidade').AsFloat);		
+    Except
+      Result:=false;
+    end;
+
+  finally
+    if Assigned(qry) then
+    FreeAndNil(qry);
+  end;
+end;
+
+function Tvenda.Selecionar(id: Integer; var cds:TClientDataSet): Boolean;
+var qry:TZQuery;
+begin
+  try
+    result:=true;
+    qry:=TZquery.Create(nil);
+    qry.Connection:=ConectDB;
+    qry.SQL.Add('SELECT vendaId '+
+                ' ,clienteId '+
+                ' ,dataVenda '+
+                ' ,totalvenda '+
+                ' FROM vendas '+
+                ' WHERE vendaId=:vendaId');
+    qry.ParamByName('vendaId').AsInteger:=id;
+
+    try
+      qry.Open;
+
+      self.F_vendaId :=qry.FieldByName('vendaId').AsInteger;
+      self.F_clienteId := qry.FieldByName('clienteId').AsInteger;
+      self.F_dataVenda := qry.FieldByName('dataVenda').AsDateTime;
+      self.F_totalvenda := qry.FieldByName('totalVenda').AsFloat;
+
+      cds.First;
+      while not cds.Eof do begin
+        cds.Delete;
+      end;
+
+      qry.Close;
+      qry.SQL.Clear;
+      qry.SQL.Add('SELECT VendasItens.ProdutoID, '+
+                  ' Produtos.Nome, '+
+                  ' VendasItens.ValorUnitario, '+
+                  ' VendasItens.Quantidade, '+
+                  ' vendasItens.TotalProduto '+
+                  ' FROM VendasItens '+
+                  ' INNER JOIN produtos On Produtos.produtoId = VendasItens.produtoId '+
+                  ' WHERE VendasItens.VendaId =:VendaId ');
+      qry.ParamByName('VendaID').AsInteger := Self.F_vendaId;
+      qry.Open;
+
+
+      qry.First;
+      while not qry.Eof do begin
+        cds.Append;
+        cds.FieldByName('produtoId').AsInteger :=qry.FieldByName('ProdutoID').AsInteger;
+        cds.FieldByName('nomeProduto').AsString :=qry.FieldByName('Nome').AsString;
+        cds.FieldByName('valorUnitario').AsFloat :=qry.FieldByName('ValorUnitario').AsFloat;
+        cds.FieldByName('quantidade').AsFloat :=qry.FieldByName('Quantidade').AsFloat;
+        cds.FieldByName('valorTotalProduto').AsFloat := qry.FieldByName('TotalProduto').AsFloat;
+        cds.Post;
+        qry.Next;
+      end;
+
+    except
+      Result:=false;
+    end;
+  finally
+    if Assigned(qry) then
+    FreeAndNil(qry);
+  end;
+end;
+{$endregion}
+
+procedure TVenda.RetornarEstoque(sCodigo:String; acao:tExcluirEstoque);          //update e delete
+var qry:TZQuery;
+    oControleEstoque:TControleEstoque;
+ begin
+  qry:=TzQuery.Create(nil);
+  qry.Connection:=ConectDb;
+  qry.SQL.Clear;
+  qry.SQL.Add( ' SELECT produtoId, quantidade '+
+               ' FROM VendasItens '+
+               ' WHERE VendaId=:vendaId ');
+  if acao=aeeApagar then
+     qry.SQL.Add(' ADD produtoId NOT IN ('+sCodigo+') ')
+  else
+     qry.SQL.Add(' ADD produtoId ('+sCodigo+') ');
+
+  qry.ParamByName('vendaId').AsInteger :=Self.F_vendaId;
+  try   
+    oControleEstoque:=TControleEstoque.Create(ConectDB);
+    qry.Open;
+    qry.First;
+    while not qry.eof do begin
+        oControleEstoque.produtoId :=qry.FieldByName('produtoId').AsInteger;
+        oControleEstoque.Quantidade :=qry.FieldByName('quantidade').AsFloat;
+        oControleEstoque.RetornarEstoque;
+        qry.Next;
+    end;
+  finally
+  if assigned(ocontroleEstoque) then
+     freeandnil(ocontroleEstoque);
+
+  end;
+  end;
+
+PROCEDURE TVenda.baixarEstoque(produtoId:integer; Quantidade:Double);            //INSERT 
+var oControleEstoque:TControleEstoque;
+begin                                           
+  try
+    oControleEstoque:=TControleEstoque.Create(conectDB);
+    oControleEstoque.ProdutoId :=produtoId;
+    oControleEstoque.Quantidade :=quantidade;
+    oControleEstoque.BaixarEstoque;
+  finally
+    if ASsigned(oControleEstoque) then
+       FreeAndNil(oControleEstoque);
+  end;
+end;
+
+end.

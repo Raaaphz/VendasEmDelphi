@@ -1,0 +1,23 @@
+unit cArquivoINI;
+interface
+
+uses System.Classes,
+vcl.Controls,
+vcl.Dialogs,
+System.SysUtils,
+System.IniFiles,
+Vcl.Forms;
+
+
+type
+  TarquvioINI=class
+    private
+
+    public
+    class function ArquivoINI:string; static;
+    class function LerIni(aSecao:String; aEntrada:String):String; Static;
+    class procedure AtualizarINI(aSecao, aEntrada, aValor: String); static;
+  end;
+implementation
+
+end.

@@ -1,0 +1,29 @@
+inherited frmHeranca1: TfrmHeranca1
+  Caption = 'frmHeranca1'
+  ClientWidth = 858
+  TextHeight = 15
+  inherited pnlRodape: TPanel
+    Width = 858
+    ExplicitTop = 478
+    ExplicitWidth = 854
+    inherited btnNavega: TDBNavigator
+      Hints.Strings = ()
+    end
+  end
+  inherited pgcPrincipal: TPageControl
+    Width = 858
+    inherited tabListagem: TTabSheet
+      ExplicitHeight = 448
+      inherited pnlListagemTopo: TPanel
+        Width = 850
+      end
+      inherited grdListagem: TDBGrid
+        Width = 850
+        Height = 367
+      end
+    end
+    inherited tabManutencao: TTabSheet
+      ExplicitHeight = 448
+    end
+  end
+end
