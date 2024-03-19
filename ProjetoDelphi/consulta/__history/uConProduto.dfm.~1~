@@ -1,0 +1,22 @@
+inherited frmConProduto: TfrmConProduto
+  Caption = 'frmConProduto'
+  TextHeight = 15
+  inherited Panel2: TPanel
+    inherited btnFechar: TBitBtn
+      Left = 689
+      ExplicitLeft = 685
+    end
+  end
+  inherited qryListagem: TZQuery
+    SQL.Strings = (
+      'SELECT p.produtoId,'
+      'p.nome,'
+      'p.valor,'
+      'p.descricao,'
+      'p.quantidade,'
+      'p.categoriaId,'
+      'c.descricao As DescricaoCategoria'
+      'From produtos as p'
+      'left join categorias as c on c.categoriaId = p.categoriaId')
+  end
+end

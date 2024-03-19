@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Data.DB,
   ZAbstractRODataset, ZAbstractDataset, ZDataset, Vcl.Grids, Vcl.DBGrids,
   Vcl.StdCtrls, Vcl.Mask, Vcl.DBCtrls, Vcl.Buttons, Vcl.ExtCtrls, uDTMConect, uEnum,
-  RxToolEdit, RxCurrEdit, ZAbstractConnection, ZConnection;
+  RxToolEdit, RxCurrEdit, ZAbstractConnection, ZConnection, cUsuarioLogado;
 
 type
   TfrmHeranca = class(TForm)
@@ -67,7 +67,7 @@ type
     function Excluir:Boolean; virtual;
     function Gravar(EstadoDoCadastro:TEstadoDoCadastro):Boolean; virtual;
     procedure BloqueiaCTRL_DEL_DBGrid(var Key: Word; Shift: TShiftState);
-    class function TenhoAcesso(aUsuarioId: Integer; aChave: String; aConexao: TZConnection): Boolean; static;
+
   end;
 
 var
@@ -85,7 +85,7 @@ implementation
 
 procedure TfrmHeranca.btnAlterarClick(Sender: TObject);
 begin
- if not TenhoAcesso(oUsuarioLogado.Codigo, self.Name+'_'+TBitBtn(sender).Name, dtmPrincipal.ConectDB) then
+ if not TUsuarioLogado.TenhoAcesso(oUsuarioLogado.Codigo, self.Name+'_'+TBitBtn(sender).Name, dtmPrincipal.ConectDB) then
  begin
    MessageDlg('Usuário: '+oUsuarioLogado.Nome+', não tem permissão de acesso',mtWarning,[mbOK],0);
    abort;
@@ -164,7 +164,7 @@ end;
 procedure TfrmHeranca.btnApagarClick(Sender: TObject);
 begin
 
- if not TenhoAcesso(oUsuarioLogado.Codigo, self.Name+'_'+TBitBtn(sender).Name, dtmPrincipal.ConectDB) then
+ if not TUsuarioLogado.TenhoAcesso(oUsuarioLogado.Codigo, self.Name+'_'+TBitBtn(sender).Name, dtmPrincipal.ConectDB) then
  begin
    MessageDlg('Usuário: '+oUsuarioLogado.Nome+', não tem permissão de acesso',mtWarning,[mbOK],0);
    abort;
@@ -197,7 +197,7 @@ end;
 procedure TfrmHeranca.btnGravarClick(Sender: TObject);
 begin
 
- if not TenhoAcesso(oUsuarioLogado.Codigo, self.Name+'_'+TBitBtn(sender).Name, dtmPrincipal.ConectDB) then
+ if not TUsuarioLogado.TenhoAcesso(oUsuarioLogado.Codigo, self.Name+'_'+TBitBtn(sender).Name, dtmPrincipal.ConectDB) then
  begin
    MessageDlg('Usuário: '+oUsuarioLogado.Nome+', não tem permissão de acesso',mtWarning,[mbOK],0);
    abort;
@@ -223,7 +223,7 @@ end;
 
 procedure TfrmHeranca.btnNovoClick(Sender: TObject);
 begin
- if not TenhoAcesso(oUsuarioLogado.Codigo, self.Name+'_'+TBitBtn(sender).Name, dtmPrincipal.ConectDB) then
+ if not TUsuarioLogado.TenhoAcesso(oUsuarioLogado.Codigo, self.Name+'_'+TBitBtn(sender).Name, dtmPrincipal.ConectDB) then
  begin
    MessageDlg('Usuário: '+oUsuarioLogado.Nome+', não tem permissão de acesso',mtWarning,[mbOK],0);
    abort;
@@ -243,7 +243,7 @@ var I:Integer;
     NomeCampo: String;
     CondicaoSQL: STRING;
 begin
- if not TenhoAcesso(oUsuarioLogado.Codigo, self.Name+'_'+TBitBtn(sender).Name, dtmPrincipal.ConectDB) then
+ if not TUsuarioLogado.TenhoAcesso(oUsuarioLogado.Codigo, self.Name+'_'+TBitBtn(sender).Name, dtmPrincipal.ConectDB) then
  begin
    MessageDlg('Usuário: '+oUsuarioLogado.Nome+', não tem permissão de acesso',mtWarning,[mbOK],0);
    abort;
@@ -404,36 +404,6 @@ end;
 procedure TfrmHeranca.mskPesquisaChange(Sender: TObject);
 begin
   qryListagem.Locate(IndiceAtual, TMaskEdit (Sender).Text, [loPartialKey]);
-end;
-
-class function TfrmHeranca.TenhoAcesso(aUsuarioId: Integer; aChave: String;
-  aConexao: TZConnection): Boolean;
-  var qry:TZquery;
-begin
-  try
-  Result:=true;
-  qry:=TZQuery.Create(nil);
-  qry.Connection:=aConexao;
-  qry.SQL.Clear;
-  qry.SQL.Add('SELECT usuarioId'+
-              ' FROM usuariosAcaoAcesso' +
-              ' WHERE usuarioId=:usuarioId' +
-              ' AND acaoAcessoId=(SELECT TOP 1 acaoAcessoId FROM acaoAcesso WHERE chave=:chave)'+
-              ' AND ativo=1');
-  qry.ParamByName('usuarioId').AsInteger :=aUsuarioId;
-  qry.ParamByName('chave').AsString :=aChave;
-
-  qry.Open;
-
-  if qry.IsEmpty then
-     Result:=false
-
-  finally
-  if Assigned(qry) then
-  FreeAndNil(qry);
-  end;
-
-
 end;
 
 procedure TfrmHeranca.ControlarTab(pgcPrincipal: TPageControl; indice: Integer);

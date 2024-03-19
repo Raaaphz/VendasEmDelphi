@@ -9,7 +9,7 @@ uses
   Vcl.ComCtrls, ZDbcIntfs, cAtualizacaoBancoDeDados, cArquivoINI, rlReport,
   Vcl.ExtCtrls, Data.DB, ZAbstractRODataset, ZAbstractDataset, ZDataset,
   VclTee.TeeGDIPlus, VCLTee.TeEngine, VCLTee.Series, VCLTee.TeeProcs,
-  VCLTee.Chart, VCLTee.DBChart;
+  VCLTee.Chart, VCLTee.DBChart, cFuncao;
 
 type
   TfrmPrincipal = class(TForm)
@@ -78,8 +78,6 @@ type
     procedure tmrAtualizacaoDashBoardTimer(Sender: TObject);
   private
     procedure AtualizacaoBancoDados(aForm: TfrmAtualizarDB);
-    procedure CriarForm(aNomeForm: TformClass);
-    procedure CriarRelatorio(aNomeForm: TformClass);
     procedure AtualizarDashboard;
     { Private declarations }
   public
@@ -99,7 +97,7 @@ uses uCadCategoria, ucadcliente, uCadProduto, uCadUsuario, uLogin, uDTMGrafico,
 
 procedure TfrmPrincipal.CATEGORIA1Click(Sender: TObject);
 begin
-  criarForm(TfrmCadCategoria);
+  Tfuncao.criarForm(TfrmCadCategoria, oUsuarioLogado, dtmPrincipal.conectDB);
 end;
 
 procedure TfrmPrincipal.Panel1Click(Sender: TObject);
@@ -109,18 +107,17 @@ end;
 
 procedure TfrmPrincipal.PRODUTO1Click(Sender: TObject);
 begin
-   CriarRelatorio(TfrmRelCadProduto);
+  TFuncao.CriarRelatorio(TfrmRelCadProduto,oUsuarioLogado, dtmPrincipal.ConectDB);
 end;
 
 procedure TfrmPrincipal.PRODUTOClick(Sender: TObject);
 begin
-  criarForm(TfrmCadProduto);
+  Tfuncao.criarForm(TfrmCadProduto, oUsuarioLogado, dtmPrincipal.conectDB);
 end;
 
 procedure TfrmPrincipal.PRODUTOPORCATEGORIA1Click(Sender: TObject);
 begin
-  CriarRelatorio(TfrmRelCadProdutoComGrupoCategoria);
-
+  TFuncao.CriarRelatorio(TfrmRelCadProdutoComGrupoCategoria,oUsuarioLogado, dtmPrincipal.ConectDB);
 end;
 
 
@@ -131,24 +128,24 @@ end;
 
 procedure TfrmPrincipal.USUARIOVSACOES1Click(Sender: TObject);
 begin
-criarForm(TfrmUsuarioVsAcoes);
+Tfuncao.criarForm(TfrmUsuarioVsAcoes, oUsuarioLogado, dtmPrincipal.conectDB);
 end;
 
 procedure TfrmPrincipal.USURIO1Click(Sender: TObject);
 begin
-    criarForm(TfrmCadUsuario);
+Tfuncao. criarForm(TfrmCadUsuario, oUsuarioLogado, dtmPrincipal.conectDB);
 end;
 
 procedure TfrmPrincipal.CATEGORIA4Click(Sender: TObject);
 begin
-  criarRelatorio(TfrmRelCategoria);
+  TFuncao.criarRelatorio(TfrmRelCategoria,oUsuarioLogado, dtmPrincipal.ConectDB);
 end;
 
 procedure TfrmPrincipal.VENDAPORDATA1Click(Sender: TObject);
 begin
   try
     frmSelecionarData:=TfrmSelecionarData.Create(self);
-    if TfrmHeranca.TenhoAcesso(oUsuarioLogado.Codigo, frmSelecionarData.Name, DTMPrincipal.ConectDb) then
+    if TUsuarioLogado.TenhoAcesso(oUsuarioLogado.Codigo, frmSelecionarData.Name, DTMPrincipal.ConectDb) then
     begin
 
     frmSelecionarData.ShowModal;
@@ -174,17 +171,18 @@ end;
 
 procedure TfrmPrincipal.VENDAS1Click(Sender: TObject);
 begin
-criarForm(tfrmProVenda);
+Tfuncao.criarForm(tfrmProVenda, oUsuarioLogado, dtmPrincipal.conectDB);
+
 end;
 
 procedure TfrmPrincipal.CLIENTE1Click(Sender: TObject);
 begin
-criarForm(TfrmCadCliente);
+Tfuncao.criarForm(TfrmCadCliente, oUsuarioLogado, dtmPrincipal.conectDB);
 end;
 
 procedure TfrmPrincipal.CLIENTE3Click(Sender: TObject);
 begin
-  criarRelatorio(TfrmRelCadCliente);
+  TFuncao.criarRelatorio(TfrmRelCadCliente,oUsuarioLogado, dtmPrincipal.ConectDB);
 end;
 
 procedure TfrmPrincipal.clkFecharClick(Sender: TObject);
@@ -194,7 +192,8 @@ end;
 
 procedure TfrmPrincipal.FICHADECLIENTE1Click(Sender: TObject);
 begin
-   CriarRelatorio(TfrmRelCadClienteFicha);
+   TFuncao.CriarRelatorio(TfrmRelCadClienteFicha,oUsuarioLogado, dtmPrincipal.ConectDB);
+
 end;
 
 procedure TfrmPrincipal.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -288,12 +287,13 @@ end;
 
 procedure TfrmPrincipal.ALTERARSENHA1Click(Sender: TObject);
 begin
-criarForm(TfrmAlterarSenha);
+Tfuncao.criarForm(TfrmAlterarSenha, oUsuarioLogado, dtmPrincipal.conectDB);
+
 end;
 
 procedure TfrmPrincipal.AOACESSO1Click(Sender: TObject);
 begin
-criarForm(TfrmCadAcaoAcesso);
+Tfuncao.criarForm(TfrmCadAcaoAcesso, oUsuarioLogado, dtmPrincipal.conectDB);
 end;
 
 procedure TfrmPrincipal.AtualizacaoBancoDados(aForm:TfrmAtualizarDB);
@@ -308,59 +308,6 @@ var oatualizarMSSQL:TAtualizaBancoDadosMSSQL;
          FreeAndNil(oAtualizarMSSQL);
    end;
   end;
-
-  procedure TfrmPrincipal.CriarForm(aNomeForm: TformClass);
-  var form: Tform;
-  begin
-    try
-      tmrAtualizacaoDashBoard.Enabled:=false;
-      form := aNomeForm.Create(Application);
-      if TfrmHeranca.TenhoAcesso(oUsuarioLogado.Codigo, form.Name, dtmPrincipal.ConectDb) then
-      begin
-       form.ShowModal;
-     end
-      else
-      begin
-        MessageDlg('Usuário: '+oUsuarioLogado.nome+' Não tem permissao de acesso',mtWarning,[mbOK],0);
-      end;
-    finally
-      if Assigned(form) then
-      form.Release;
-       tmrAtualizacaoDashBoard.Enabled:=true;
-    end;
-  end;
-
-procedure TfrmPrincipal.CriarRelatorio(aNomeForm: TformClass);
-var form: Tform;
-    aRelatorio:TRLReport;
-    i:Integer;
-
-begin
- try
- tmrAtualizacaoDashBoard.Enabled:=false;
-   form := aNomeForm.Create(application);
-   if TfrmHeranca.tenhoAcesso(oUsuarioLogado.codigo, form.Name, dtmPrincipal.ConectDB) then
-   begin
-   for I := 0 to form.ComponentCount-1 do
-   begin
-     if form.Components[i] is TRLReport then
-     begin
-       TRLReport(form.Components[i]).PreviewModal;
-       break;
-     end;
-   end;
-   end
-   else
-   begin
-   MessageDLG('Usuário: '+oUsuarioLogado.nome+', não tem permissão de acesso',mtWarning, [mbOK],0);
-   end;
-
- finally
- if assigned(form) then
-    form.Release;
-    tmrAtualizacaoDashBoard.Enabled:=true;
- end;
-end;
 
 procedure TfrmPrincipal.AtualizarDashboard;
 begin

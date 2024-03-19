@@ -85,7 +85,6 @@ object frmHeranca: TfrmHeranca
       Caption = '&FECHAR'
       TabOrder = 5
       OnClick = btnFecharClick
-      ExplicitLeft = 717
     end
     object btnNavega: TDBNavigator
       Left = 440

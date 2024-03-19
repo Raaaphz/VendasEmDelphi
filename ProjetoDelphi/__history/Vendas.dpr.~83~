@@ -1,0 +1,54 @@
+program Vendas;
+
+uses
+  Vcl.Forms,
+  uPrincipal in 'uPrincipal.pas' {frmPrincipal},
+  uDTMConect in 'datamodule\uDTMConect.pas' {dtmPrincipal: TDataModule},
+  uTelaHeranca in 'heranca\uTelaHeranca.pas' {frmHeranca},
+  uCadCategoria in 'cadastro\uCadCategoria.pas' {frmCadCategoria},
+  uEnum in 'heranca\uEnum.pas',
+  cCadCategoria in 'classes\cCadCategoria.pas',
+  uCadCliente in 'cadastro\uCadCliente.pas' {frmCadCliente},
+  cCadCliente in 'classes\cCadCliente.pas',
+  uCadProduto in 'cadastro\uCadProduto.pas' {frmCadProduto},
+  cCadProduto in 'classes\cCadProduto.pas',
+  uFRMAtualizaDB in 'datamodule\uFRMAtualizaDB.pas' {frmAtualizarDB},
+  uDTMVenda in 'datamodule\uDTMVenda.pas' {dtmVenda: TDataModule},
+  uProVendas in 'processo\uProVendas.pas' {frmProVenda},
+  cProVenda in 'classes\cProVenda.pas',
+  cControleEstoqueTESTE in 'classes\cControleEstoqueTESTE.pas',
+  uRelCadClienteFicha in 'relatorio\uRelCadClienteFicha.pas' {frmRelCadClienteFicha},
+  uRelCadCliente in 'relatorio\uRelCadCliente.pas' {frmRelCadCliente},
+  uRelProVenda in 'relatorio\uRelProVenda.pas' {frmRelProVenda},
+  uRelCategoria in 'relatorio\uRelCategoria.pas' {frmRelCategoria},
+  uRelCadProduto in 'relatorio\uRelCadProduto.pas' {frmRelCadProduto},
+  uSelecionarDatatTESTE in 'relatorio\uSelecionarDatatTESTE.pas' {frmSelecionarData},
+  uRelCadProdutoComGrupoCategoria in 'relatorio\uRelCadProdutoComGrupoCategoria.pas' {frmRelCadProdutoComGrupoCategoria},
+  uRelVendaPorData in 'relatorio\uRelVendaPorData.pas' {frmVendaPorData},
+  uFuncaoCriptografiaTESTE in 'heranca\uFuncaoCriptografiaTESTE.pas',
+  uCadUsuario in 'cadastro\uCadUsuario.pas' {frmCadUsuario},
+  cCadUsuario in 'classes\cCadUsuario.pas',
+  uLogin in 'login\uLogin.pas' {frmLogin},
+  uAlterarSenha in 'login\uAlterarSenha.pas' {frmAlterarSenha},
+  cUsuarioLogado in 'classes\cUsuarioLogado.pas',
+  cAtualizacaoBancoDeDados in 'classes\cAtualizacaoBancoDeDados.pas',
+  cAtualizacaoCampoMSSQL in 'classes\cAtualizacaoCampoMSSQL.pas',
+  cArquivoINI in 'classes\cArquivoINI.pas',
+  cAcaoAcesso in 'classes\cAcaoAcesso.pas',
+  uCadAcaoAcesso in 'cadastro\uCadAcaoAcesso.pas' {frmCadAcaoAcesso},
+  uUsuarioVsAcoes in 'login\uUsuarioVsAcoes.pas' {frmUsuarioVsAcoes},
+  uDTMgrafico in 'datamodule\uDTMgrafico.pas' {dtmGrafico: TDataModule},
+  cFuncao in 'classes\cFuncao.pas',
+  uTelaHerançaConsulta in 'heranca\uTelaHerançaConsulta.pas' {frmHerancaConsulta},
+  uConCategoria in 'consulta\uConCategoria.pas' {frmConCategoria},
+  uConProduto in 'consulta\uConProduto.pas' {frmConProduto};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TfrmPrincipal, frmPrincipal);
+  Application.CreateForm(TfrmConProduto, frmConProduto);
+  Application.Run;
+end.

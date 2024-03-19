@@ -37,7 +37,12 @@ uses
   cAcaoAcesso in 'classes\cAcaoAcesso.pas',
   uCadAcaoAcesso in 'cadastro\uCadAcaoAcesso.pas' {frmCadAcaoAcesso},
   uUsuarioVsAcoes in 'login\uUsuarioVsAcoes.pas' {frmUsuarioVsAcoes},
-  uDTMgrafico in 'datamodule\uDTMgrafico.pas' {dtmGrafico: TDataModule};
+  uDTMgrafico in 'datamodule\uDTMgrafico.pas' {dtmGrafico: TDataModule},
+  cFuncao in 'classes\cFuncao.pas',
+  uTelaHerançaConsulta in 'heranca\uTelaHerançaConsulta.pas' {frmHerancaConsulta},
+  uConCategoria in 'consulta\uConCategoria.pas' {frmConCategoria},
+  uConProduto in 'consulta\uConProduto.pas' {frmConProduto},
+  uConCliente in 'consulta\uConCliente.pas' {frmConCliente};
 
 {$R *.res}
 

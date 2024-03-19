@@ -2,8 +2,8 @@ object frmPrincipal: TfrmPrincipal
   Left = 0
   Top = 0
   Caption = 'Menu Principal'
-  ClientHeight = 638
-  ClientWidth = 1116
+  ClientHeight = 636
+  ClientWidth = 1108
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,20 +18,18 @@ object frmPrincipal: TfrmPrincipal
   TextHeight = 15
   object stbPrincipal: TStatusBar
     Left = 0
-    Top = 619
-    Width = 1116
+    Top = 617
+    Width = 1108
     Height = 19
     Panels = <
       item
         Width = 150
       end>
-    ExplicitTop = 618
-    ExplicitWidth = 1112
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1116
+    Width = 1108
     Height = 49
     Align = alTop
     Caption = 'DASHBOARD'
@@ -43,17 +41,14 @@ object frmPrincipal: TfrmPrincipal
     ParentFont = False
     TabOrder = 1
     OnClick = Panel1Click
-    ExplicitWidth = 1112
   end
   object Panel4: TPanel
-    Left = 568
+    Left = 560
     Top = 49
     Width = 548
-    Height = 570
+    Height = 568
     Align = alRight
     TabOrder = 2
-    ExplicitLeft = 564
-    ExplicitHeight = 569
     object Panel6: TPanel
       Left = 1
       Top = 1
@@ -132,12 +127,11 @@ object frmPrincipal: TfrmPrincipal
     end
     object Panel7: TPanel
       Left = 1
-      Top = 281
+      Top = 279
       Width = 546
       Height = 288
       Align = alBottom
       TabOrder = 1
-      ExplicitTop = 280
       object DBChart3: TDBChart
         Left = 1
         Top = 1
@@ -212,10 +206,9 @@ object frmPrincipal: TfrmPrincipal
     Left = 0
     Top = 49
     Width = 577
-    Height = 570
+    Height = 568
     Align = alLeft
     TabOrder = 3
-    ExplicitHeight = 569
     object Panel2: TPanel
       Left = 1
       Top = 1
@@ -274,12 +267,11 @@ object frmPrincipal: TfrmPrincipal
     end
     object Panel3: TPanel
       Left = 1
-      Top = 279
+      Top = 277
       Width = 575
       Height = 290
       Align = alBottom
       TabOrder = 1
-      ExplicitTop = 278
       object DBChart4: TDBChart
         Left = 1
         Top = 1

@@ -208,6 +208,23 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
+        <DCCReference Include="classes\cFuncao.pas"/>
+        <DCCReference Include="heranca\uTelaHerançaConsulta.pas">
+            <Form>frmHerancaConsulta</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="consulta\uConCategoria.pas">
+            <Form>frmConCategoria</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="consulta\uConProduto.pas">
+            <Form>frmConProduto</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="consulta\uConCliente.pas">
+            <Form>frmConCliente</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

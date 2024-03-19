@@ -4,10 +4,10 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uTelaHeranca, Data.DB,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uTelaHeranca, Data.DB, cFuncao,
   ZAbstractRODataset, ZAbstractDataset, ZDataset, Vcl.Grids, Vcl.DBGrids,
   Vcl.StdCtrls, Vcl.Mask, Vcl.ComCtrls, Vcl.DBCtrls, Vcl.Buttons, Vcl.ExtCtrls,
-  RxToolEdit, RxCurrEdit, cCadProduto, uEnum, uDtmConect;
+  RxToolEdit, RxCurrEdit, cCadProduto, uEnum, uDtmConect, uCadCategoria;
 
 type
   TfrmCadProduto = class(TfrmHeranca)
@@ -32,11 +32,15 @@ type
     qryCategoriacategoriaId: TIntegerField;
     qryCategoriadescricao: TWideStringField;
     Label4: TLabel;
+    spbIncluir: TSpeedButton;
+    spbPesquisar: TSpeedButton;
     procedure btnAlterarClick(Sender: TObject);
     procedure btnNovoClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure spbIncluirClick(Sender: TObject);
+    procedure spbPesquisarClick(Sender: TObject);
   private
     { Private declarations }
     oProduto:TProduto;
@@ -52,6 +56,8 @@ var
 implementation
 
 {$R *.dfm}
+
+uses uConCategoria, uPrincipal;
 procedure TfrmCadProduto.btnAlterarClick(Sender: TObject);
 begin
   if oProduto.Selecionar(qryListagem.FieldByName('produtoId').AsInteger) then begin
@@ -123,6 +129,34 @@ begin
      Result:=oProduto.Gravar
   else if (estadoDoCadastro=ecAlterar) then
      Result:=oProduto.Atualizar;
+
+end;
+
+procedure TfrmCadProduto.spbIncluirClick(Sender: TObject);
+begin
+  inherited;
+  Tfuncao.CriarForm(TfrmCadCategoria, oUsuarioLogado, DtmPrincipal.ConectDB);
+  qryCategoria.Refresh;
+end;
+
+procedure TfrmCadProduto.spbPesquisarClick(Sender: TObject);
+begin
+  inherited;
+  try
+  frmConCategoria:=TfrmConCategoria.Create(self);
+
+  if lkpCategoria.keyvalue<>null then
+     frmConCategoria.aIniciarPesquisaID:=lkpCategoria.KeyValue;
+
+  frmConCategoria.ShowModal;
+
+  if frmConCategoria.aRetornarIdSelecionado<>Unassigned then
+     lkpCategoria.KeyValue:=frmConCategoria.aRetornarIdSelecionado;
+
+  finally
+    frmConCategoria.Release;
+  end;
+
 
 end;
 

@@ -4,10 +4,10 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uTelaHeranca, Data.DB,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uTelaHeranca, Data.DB, cFuncao, uCadProduto,
   ZAbstractRODataset, ZAbstractDataset, ZDataset, Vcl.Grids, Vcl.DBGrids,
   Vcl.StdCtrls, Vcl.Mask, Vcl.ComCtrls, Vcl.DBCtrls, Vcl.Buttons, Vcl.ExtCtrls,
-  RxToolEdit, RxCurrEdit, uEnum, uDtmConect, cProVenda, uDtmVenda, uRelProVenda;
+  RxToolEdit, RxCurrEdit, uEnum, uDtmConect, cProVenda, uDtmVenda, uRelProVenda, uCadCliente;
 
 
 type
@@ -40,6 +40,10 @@ type
     btnRemover: TBitBtn;
     Label7: TLabel;
     Label8: TLabel;
+    spbIncluir: TSpeedButton;
+    spbPesquisar: TSpeedButton;
+    spbIncluirCliente: TSpeedButton;
+    spbPesquisarCliente: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure dbGridItensVendaKeyDown(Sender: TObject; var Key: Word; shift: TShiftState);
@@ -53,6 +57,10 @@ type
     procedure btnGravarClick(Sender: TObject);
     procedure btnRemoverClick(Sender: TObject);
     procedure dbGridItensVendaDblClick(Sender: TObject);
+    procedure spbIncluirClick(Sender: TObject);
+    procedure spbPesquisarClick(Sender: TObject);
+    procedure spbIncluirClienteClick(Sender: TObject);
+    procedure spbPesquisarClienteClick(Sender: TObject);
   private
     { Private declarations }
     dtmVenda:TdtmVenda;
@@ -72,6 +80,7 @@ var
   frmProVenda: TfrmProVenda;
 
 implementation
+uses uprincipal, uConProduto, uConCliente;
 
 {$R *.dfm}
 
@@ -271,6 +280,58 @@ begin
     edtQuantidade.Value:=1;
 
     edtTotalProduto.Value:=TotalizarProduto(edtValorUnitario.Value, edtQuantidade.Value);
+  end;
+end;
+
+procedure TfrmProVenda.spbIncluirClick(Sender: TObject);
+begin
+  inherited;
+    Tfuncao.CriarForm(TfrmCadProduto, oUsuarioLogado, DtmPrincipal.ConectDB);
+    dtmVenda.qryProdutos.Refresh;
+end;
+
+procedure TfrmProVenda.spbIncluirClienteClick(Sender: TObject);
+begin
+  inherited;
+      Tfuncao.CriarForm(TfrmCadCliente, oUsuarioLogado, DtmPrincipal.ConectDB);
+    dtmVenda.qryCliente.Refresh;
+end;
+
+procedure TfrmProVenda.spbPesquisarClick(Sender: TObject);
+begin
+  inherited;
+  try
+    frmConProduto:=TfrmConProduto.Create(self);
+
+  if lkpProduto.keyvalue<>null then
+     frmConProduto.aIniciarPesquisaID:=lkpProduto.KeyValue;
+
+  frmConProduto.ShowModal;
+
+  if frmConProduto.aRetornarIdSelecionado<>Unassigned then
+     lkpProduto.KeyValue:=frmConProduto.aRetornarIdSelecionado;
+
+  finally
+    frmConProduto.Release;
+  end;
+end;
+
+procedure TfrmProVenda.spbPesquisarClienteClick(Sender: TObject);
+begin
+  inherited;
+    try
+    frmConCliente:=TfrmConCliente.Create(self);
+
+  if lkpCliente.keyvalue<>null then
+     frmConCliente.aIniciarPesquisaID:=lkpProduto.KeyValue;
+
+  frmConCliente.ShowModal;
+
+  if frmConCliente.aRetornarIdSelecionado<>Unassigned then
+     lkpCliente.KeyValue:=frmConCliente.aRetornarIdSelecionado;
+
+  finally
+    frmConCliente.Release;
   end;
 end;
 

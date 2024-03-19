@@ -9,7 +9,6 @@ object dtmPrincipal: TdtmPrincipal
       'controls_cp=CP_UTF16'
       'AutoEncodeStrings=True')
     TransactIsolationLevel = tiReadCommitted
-    Connected = True
     SQLHourGlass = True
     HostName = '.\SERVERCURSO'
     Port = 0
